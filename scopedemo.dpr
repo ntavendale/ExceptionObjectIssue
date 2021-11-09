@@ -63,20 +63,33 @@ begin
   WriteLn(' '); //put in break
 end;
 
-procedure RaisedExceptionDemo;
+procedure EAccessViolationDemo;
 var
   LList: TStrings;
 begin
-  var Susan: ISimpleInterface := TSimpleClass.Create('Susan');
+  // This works. AquireExceptionObject will return a reference to an exception object
+  // in the TSimpleClass.Destroy method
+  var Susan: ISimpleInterface := TSimpleClass.Create('AccessViolation Demo Object');
   WriteLn(' '); //
   WriteLn((LList.Count));
 end;
 
-procedure ExceptionDemo(AInput: Integer);
+procedure EDivisionByZeroDemo(AInput: Integer);
 begin
-  var Susan: ISimpleInterface := TSimpleClass.Create('Susan');
+  var Susan: ISimpleInterface := TSimpleClass.Create('Division By Zero Demo Object');
   WriteLn(' '); //
+  // This doesn't work. AquireExceptionObject will return nil in the
+  // TSimpleClass.Destroy method
   WriteLn((1/AInput)); //Output Should Be: Destroying Susan.
+end;
+
+procedure ERaisedDivisionByZeroDemo;
+begin
+  var Susan: ISimpleInterface := TSimpleClass.Create('Raised DivByZero Demo Object');
+  WriteLn(' '); //
+  // This works. AquireExceptionObject will return a reference to an exception object
+  // in the TSimpleClass.Destroy method
+  raise EDivByZero.Create('Test Division By Zero');
 end;
 
 procedure LocalizeScopeDemo;
@@ -99,7 +112,7 @@ begin
   WriteLn('Run code that gives EAccessViloation:');
   try
     try
-       RaisedExceptionDemo;
+       EAccessViolationDemo;
     except
       on E: Exception do
       begin
@@ -116,7 +129,24 @@ begin
     WriteLn('');
     WriteLn('Run code that divides by zero:');
     try
-       ExceptionDemo(0);
+       EDivisionByZeroDemo(0);
+    except
+      on E: Exception do
+      begin
+        var LExceptionPointer := AcquireExceptionObject;
+        if nil <> LExceptionPointer then
+        begin
+          Writeln('Got Exception Pointer In ExceptionHandler');
+        end;
+        Writeln(E.ClassName, ': ', E.Message);
+      end;
+    end;
+
+    WriteLn('');
+    WriteLn('');
+    WriteLn('Run code that creates an EDivByZero Exception:');
+    try
+       ERaisedDivisionByZeroDemo;
     except
       on E: Exception do
       begin

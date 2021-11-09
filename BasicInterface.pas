@@ -31,7 +31,7 @@ begin
   if nil <> LExceptionPointer then
     WriteLn(String.Format('Got Exception Pointer in destructor. Destroying %s', [FName]))
   else
-     WriteLn(String.Format('Did NOT Get Exception Pointer in destructor. Destroying %s', [FName]));
+     WriteLn(String.Format('DID NOT GET EXCEPTION POINTER IN DESTRUCTOR!!! Destroying %s', [FName]));
   inherited Destroy;
 end;
 
